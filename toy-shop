@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>🧸 Toy Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: linear-gradient(to bottom, #ffd1dc, #cce5ff);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .container {
+      padding: 20px;
+    }
+    .search {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+    .card-content {
+      padding: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #ff6b6b;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  🧸 Toy Store
+  <div>🛒 <span id="cart">0</span></div>
+</header>
+
+<div class="container">
+  <input class="search" id="search" placeholder="Поиск игрушек..." />
+
+  <div class="grid" id="products"></div>
+</div>
+
+<script>
+  const products = [
+    { name: "Плюшевый мишка", price: 25, img: "https://images.unsplash.com/photo-1601758123927-196d5b3b7c3a" },
+    { name: "LEGO набор", price: 40, img: "https://images.unsplash.com/photo-1587654780291-39c9404d746b" },
+    { name: "Машинка", price: 15, img: "https://images.unsplash.com/photo-1616627450609-6c8b5fbc0b28" },
+    { name: "Кукла", price: 30, img: "https://images.unsplash.com/photo-1596464716127-f2a82984de30" }
+  ];
+
+  let cart = 0;
+
+  function render(list) {
+    const container = document.getElementById("products");
+    container.innerHTML = "";
+
+    list.forEach(p => {
+      container.innerHTML += `
+        <div class="card">
+          <img src="${p.img}">
+          <div class="card-content">
+            <h3>${p.name}</h3>
+            <p>€${p.price}</p>
+            <button onclick="addToCart()">Добавить</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function addToCart() {
+    cart++;
+    document.getElementById("cart").innerText = cart;
+  }
+
+  document.getElementById("search").addEventListener("input", (e) => {
+    const value = e.target.value.toLowerCase();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(value));
+    render(filtered);
+  });
+
+  render(products);
+</script>
+
+</body>
+</html>
