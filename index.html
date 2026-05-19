@@ -1,178 +1,734 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NYSYG3JWE1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-NYSYG3JWE1');
-</script>
   <meta charset="UTF-8">
-  <title>🧸 Toy Store</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Habits</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg: #f2f2f7;
+      --card: #ffffff;
+      --label: #1c1c1e;
+      --sublabel: #8e8e93;
+      --separator: #c6c6c8;
+      --accent: #007aff;
+      --green: #34c759;
+      --red: #ff3b30;
+      --orange: #ff9500;
+      --pink: #ff2d55;
+      --purple: #af52de;
+      --teal: #5ac8fa;
+      --indigo: #5856d6;
+      --tab-bar: rgba(249,249,249,0.94);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --card: #1c1c1e;
+        --label: #ffffff;
+        --sublabel: #8e8e93;
+        --separator: #38383a;
+        --tab-bar: rgba(28,28,30,0.94);
+      }
+    }
+
     body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      color: var(--label);
+      min-height: 100dvh;
+      padding-bottom: 84px;
+      overscroll-behavior: none;
     }
 
-    header {
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: env(safe-area-inset-top, 44px) 20px 0;
+      background: var(--bg);
+    }
+    .header-inner {
       display: flex;
+      align-items: flex-end;
       justify-content: space-between;
-      align-items: center;
-      padding: 20px 30px;
-      background: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding-bottom: 10px;
     }
-
-    header h1 {
-      margin: 0;
+    .header-left h1 {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1;
     }
-
-    .cart {
-      font-size: 18px;
-      font-weight: bold;
+    .header-left .date-label {
+      font-size: 13px;
+      color: var(--sublabel);
+      margin-top: 2px;
+      font-weight: 500;
     }
-
-    .container {
-      padding: 30px;
-    }
-
-    .search {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
+    .add-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
       border: none;
-      font-size: 16px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 25px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      transition: 0.3s;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    }
-
-    .card:hover {
-      transform: translateY(-8px) scale(1.02);
-    }
-
-    .card img {
-      width: 100%;
-      height: 160px;
-      object-fit: cover;
-    }
-
-    .card-content {
-      padding: 15px;
-    }
-
-    .price {
-      color: #ff4d4d;
-      font-weight: bold;
-      font-size: 18px;
-    }
-
-    button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(45deg, #ff6b6b, #ff9f43);
-      color: white;
-      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: 0.3s;
+      transition: transform 0.12s, opacity 0.12s;
+    }
+    .add-btn:active { transform: scale(0.9); opacity: 0.7; }
+    .add-btn svg { width: 18px; height: 18px; fill: white; }
+
+    /* ── Progress ring strip ── */
+    .progress-strip {
+      padding: 12px 20px 4px;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .progress-strip::-webkit-scrollbar { display: none; }
+    .day-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 44px;
+      cursor: pointer;
+    }
+    .day-pill .day-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sublabel);
+      text-transform: uppercase;
+    }
+    .day-pill.today .day-name { color: var(--accent); }
+    .ring-wrap {
+      position: relative;
+      width: 36px; height: 36px;
+    }
+    .ring-wrap svg { transform: rotate(-90deg); }
+    .ring-track { fill: none; stroke: var(--separator); stroke-width: 3; }
+    .ring-fill { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1); }
+    .ring-wrap .ring-num {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .day-pill.today .ring-fill { stroke: var(--accent); }
+
+    /* ── Section ── */
+    .section { padding: 20px 20px 0; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sublabel);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
     }
 
-    button:hover {
-      opacity: 0.9;
-      transform: scale(1.03);
+    /* ── Habit cards ── */
+    .habit-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--separator);
+    }
+    .habit-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--card);
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+      position: relative;
+    }
+    .habit-card:active { background: var(--bg); }
+    .habit-card:first-child { border-radius: 12px 12px 0 0; }
+    .habit-card:last-child { border-radius: 0 0 12px 12px; }
+    .habit-card:only-child { border-radius: 12px; }
+
+    .habit-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
     }
 
-    footer {
-      text-align: center;
-      padding: 20px;
-      margin-top: 40px;
+    .habit-info { flex: 1; min-width: 0; }
+    .habit-name {
+      font-size: 17px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .habit-meta {
+      font-size: 13px;
+      color: var(--sublabel);
+      margin-top: 2px;
+    }
+    .habit-meta .streak { color: var(--orange); font-weight: 600; }
+
+    .check-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--separator);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    }
+    .check-circle svg { width: 16px; height: 16px; opacity: 0; transition: opacity 0.15s; }
+    .habit-card.done .check-circle {
+      background: var(--green);
+      border-color: var(--green);
+    }
+    .habit-card.done .check-circle svg { opacity: 1; }
+    .habit-card.done .habit-name { color: var(--sublabel); text-decoration: line-through; }
+
+    /* ── Summary card ── */
+    .summary-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      gap: 0;
+    }
+    .stat-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .stat-block + .stat-block {
+      border-left: 1px solid var(--separator);
+    }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--sublabel);
+      font-weight: 500;
+    }
+
+    /* ── Bottom tab bar ── */
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: calc(49px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: var(--tab-bar);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-top: 0.5px solid var(--separator);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 200;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 0 16px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+    }
+    .tab-item.active { opacity: 1; color: var(--accent); }
+    .tab-item svg { width: 24px; height: 24px; }
+    .tab-item span { font-size: 10px; font-weight: 500; }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 500;
+      display: flex; align-items: flex-end;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-sheet {
+      width: 100%;
+      background: var(--card);
+      border-radius: 16px 16px 0 0;
+      padding: 0 0 env(safe-area-inset-bottom, 24px);
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+    .modal-handle {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: var(--separator);
+      margin: 10px auto 0;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 8px;
+      border-bottom: 0.5px solid var(--separator);
+    }
+    .modal-title { font-size: 17px; font-weight: 600; }
+    .modal-cancel {
+      background: none; border: none;
+      color: var(--accent); font-size: 17px; cursor: pointer;
+    }
+    .modal-save {
+      background: none; border: none;
+      color: var(--accent); font-size: 17px; font-weight: 600; cursor: pointer;
+    }
+    .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-size: 13px; font-weight: 600; color: var(--sublabel); text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-input {
+      background: var(--bg);
+      border: none; border-radius: 10px;
+      padding: 13px 14px;
+      font-size: 17px;
+      color: var(--label);
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+    }
+    .form-input::placeholder { color: var(--sublabel); }
+
+    .color-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .color-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.12s, border-color 0.12s;
+      flex-shrink: 0;
+    }
+    .color-dot.selected { border-color: var(--label); transform: scale(1.15); }
+
+    .emoji-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .emoji-btn {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 2px solid transparent;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.12s, transform 0.12s;
+    }
+    .emoji-btn.selected { border-color: var(--accent); transform: scale(1.1); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: calc(84px + 12px);
+      left: 50%; transform: translateX(-50%) translateY(20px);
+      background: rgba(50,50,50,0.95);
       color: white;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 600;
     }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 48px 24px; gap: 12px;
+    }
+    .empty-state .emoji { font-size: 56px; }
+    .empty-state p { font-size: 17px; color: var(--sublabel); text-align: center; }
+
+    /* ── Swipe-to-delete hint ── */
+    .delete-bg {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      background: var(--red);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 20px;
+      border-radius: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .delete-bg span { color: white; font-size: 15px; font-weight: 600; }
   </style>
 </head>
-
 <body>
 
-<header>
-  <h1>🧸 Toy Store</h1>
-  <div class="cart">🛒 <span id="cart">0</span></div>
-</header>
-
-<div class="container">
-  <input class="search" id="search" placeholder="Search for toys..." />
-
-  <div class="grid" id="products"></div>
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <h1>Habits</h1>
+      <div class="date-label" id="dateLabel"></div>
+    </div>
+    <button class="add-btn" onclick="openModal()" aria-label="Add habit">
+      <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+    </button>
+  </div>
 </div>
 
-<footer>
-   © 2026 Toy Store — made by you 
-</footer>
+<!-- Weekly progress strip -->
+<div class="progress-strip" id="progressStrip"></div>
+
+<!-- Stats -->
+<div class="section">
+  <div class="section-title">This Week</div>
+  <div class="summary-card">
+    <div class="stat-block">
+      <div class="stat-num" id="statDone" style="color:var(--green)">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="statStreak" style="color:var(--orange)">0</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num" id="statRate" style="color:var(--accent)">0%</div>
+      <div class="stat-label">Rate</div>
+    </div>
+  </div>
+</div>
+
+<!-- Today's habits -->
+<div class="section" id="habitSection">
+  <div class="section-title">Today</div>
+  <div class="habit-list" id="habitList"></div>
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <div class="tab-item active">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Today</span>
+  </div>
+  <div class="tab-item" onclick="showToast('Coming soon')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+    <span>Friends</span>
+  </div>
+  <div class="tab-item" onclick="showToast('Coming soon')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    <span>Stats</span>
+  </div>
+  <div class="tab-item" onclick="showToast('Coming soon')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+    <span>Profile</span>
+  </div>
+</div>
+
+<!-- Add Habit Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <div class="modal-title">New Habit</div>
+      <button class="modal-save" onclick="saveHabit()">Add</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">Habit Name</div>
+        <input class="form-input" id="habitNameInput" type="text" placeholder="e.g. Morning run" maxlength="40" />
+      </div>
+      <div class="form-group">
+        <div class="form-label">Icon</div>
+        <div class="emoji-row" id="emojiRow"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Color</div>
+        <div class="color-row" id="colorRow"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
-  const products = [
-    { name: "Teddy Bear", price: 25, img: "https://images.unsplash.com/photo-1601758123927-196d5b3b7c3a" },
-    { name: "LEGO Set", price: 40, img: "https://images.unsplash.com/photo-1587654780291-39c9404d746b" },
-    { name: "Toy Car", price: 15, img: "https://images.unsplash.com/photo-1616627450609-6c8b5fbc0b28" },
-    { name: "Doll", price: 30, img: "https://images.unsplash.com/photo-1596464716127-f2a82984de30" }
-  ];
+const EMOJIS = ['🏃','💧','📚','🧘','🍎','💪','😴','🎯','✍️','🎵','🌿','🧹','💊','🐾','🌅'];
+const COLORS = ['#007aff','#34c759','#ff9500','#ff2d55','#af52de','#5ac8fa','#ff3b30','#5856d6','#ff6b6b','#30d158'];
 
-  let cart = 0;
+let habits = JSON.parse(localStorage.getItem('habits_v2') || '[]');
+let completions = JSON.parse(localStorage.getItem('completions_v2') || '{}');
+let selectedEmoji = EMOJIS[0];
+let selectedColor = COLORS[0];
 
-  function render(list) {
-    const container = document.getElementById("products");
-    container.innerHTML = "";
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 
-    list.forEach(p => {
-      container.innerHTML += `
-        <div class="card">
-          <img src="${p.img}">
-          <div class="card-content">
-            <h3>${p.name}</h3>
-            <p class="price">€${p.price}</p>
-            <button onclick="addToCart()">Добавить в корзину</button>
-          </div>
-        </div>
-      `;
-    });
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function save() {
+  localStorage.setItem('habits_v2', JSON.stringify(habits));
+  localStorage.setItem('completions_v2', JSON.stringify(completions));
+}
+
+function isCompleted(habitId, key) {
+  return (completions[key] || []).includes(habitId);
+}
+
+function toggleHabit(habitId) {
+  const key = todayKey();
+  if (!completions[key]) completions[key] = [];
+  const idx = completions[key].indexOf(habitId);
+  if (idx === -1) {
+    completions[key].push(habitId);
+    triggerHaptic();
+  } else {
+    completions[key].splice(idx, 1);
   }
+  save();
+  render();
+}
 
-  function addToCart() {
-    cart++;
-    document.getElementById("cart").innerText = cart;
+function getStreak(habitId) {
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const k = dateKey(d);
+    if (!(completions[k] || []).includes(habitId)) break;
+    streak++;
+    d.setDate(d.getDate() - 1);
   }
+  return streak;
+}
 
-  document.getElementById("search").addEventListener("input", (e) => {
-    const value = e.target.value.toLowerCase();
-    const filtered = products.filter(p => p.name.toLowerCase().includes(value));
-    render(filtered);
+function getBestStreak() {
+  if (!habits.length) return 0;
+  let best = 0;
+  habits.forEach(h => {
+    const s = getStreak(h.id);
+    if (s > best) best = s;
   });
+  return best;
+}
 
-  render(products);
+function getWeekCompletionRate() {
+  if (!habits.length) return 0;
+  let total = 0, done = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const k = dateKey(d);
+    total += habits.length;
+    done += (completions[k] || []).filter(id => habits.find(h => h.id === id)).length;
+  }
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
+function getDayProgress(d) {
+  const k = dateKey(d);
+  if (!habits.length) return 0;
+  const done = (completions[k] || []).filter(id => habits.find(h => h.id === id)).length;
+  return done / habits.length;
+}
+
+function triggerHaptic() {
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function renderProgressStrip() {
+  const strip = document.getElementById('progressStrip');
+  strip.innerHTML = '';
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const circ = 2 * Math.PI * 15;
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const isToday = i === 0;
+    const prog = getDayProgress(d);
+    const offset = circ - (prog * circ);
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (isToday ? ' today' : '');
+    pill.innerHTML = `
+      <div class="day-name">${isToday ? 'Today' : DAY_NAMES[d.getDay()]}</div>
+      <div class="ring-wrap">
+        <svg width="36" height="36" viewBox="0 0 36 36">
+          <circle class="ring-track" cx="18" cy="18" r="15"/>
+          <circle class="ring-fill" cx="18" cy="18" r="15"
+            stroke-dasharray="${circ}"
+            stroke-dashoffset="${offset}"
+            ${isToday ? '' : 'style="stroke:var(--green)"'}
+          />
+        </svg>
+        <div class="ring-num">${Math.round(prog * 100)}</div>
+      </div>`;
+    strip.appendChild(pill);
+  }
+}
+
+function renderHabits() {
+  const key = todayKey();
+  const list = document.getElementById('habitList');
+  const section = document.getElementById('habitSection');
+  if (!habits.length) {
+    list.innerHTML = '';
+    section.innerHTML = `
+      <div class="section-title">Today</div>
+      <div class="empty-state">
+        <div class="emoji">🌱</div>
+        <p>No habits yet.<br>Tap + to add your first one!</p>
+      </div>`;
+    return;
+  }
+  section.innerHTML = '<div class="section-title">Today</div><div class="habit-list" id="habitList"></div>';
+  const habitList = document.getElementById('habitList');
+  const sorted = [...habits].sort((a, b) => {
+    const ad = isCompleted(a.id, key) ? 1 : 0;
+    const bd = isCompleted(b.id, key) ? 1 : 0;
+    return ad - bd;
+  });
+  sorted.forEach(h => {
+    const done = isCompleted(h.id, key);
+    const streak = getStreak(h.id);
+    const card = document.createElement('div');
+    card.className = 'habit-card' + (done ? ' done' : '');
+    card.dataset.id = h.id;
+    card.innerHTML = `
+      <div class="habit-icon" style="background:${h.color}22">${h.emoji}</div>
+      <div class="habit-info">
+        <div class="habit-name">${escHtml(h.name)}</div>
+        <div class="habit-meta">${streak > 0 ? `<span class="streak">🔥 ${streak} day streak</span>` : 'Start your streak today!'}</div>
+      </div>
+      <div class="check-circle" style="${done ? `background:${h.color};border-color:${h.color}` : ''}">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>`;
+    card.addEventListener('click', () => toggleHabit(h.id));
+    habitList.appendChild(card);
+  });
+}
+
+function renderStats() {
+  const key = todayKey();
+  const doneCnt = (completions[key] || []).filter(id => habits.find(h => h.id === id)).length;
+  document.getElementById('statDone').textContent = doneCnt;
+  document.getElementById('statStreak').textContent = getBestStreak();
+  document.getElementById('statRate').textContent = getWeekCompletionRate() + '%';
+}
+
+function render() {
+  renderProgressStrip();
+  renderHabits();
+  renderStats();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setDateLabel() {
+  const d = new Date();
+  document.getElementById('dateLabel').textContent = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+}
+
+function buildModalOptions() {
+  const emojiRow = document.getElementById('emojiRow');
+  emojiRow.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-btn' + (e === selectedEmoji ? ' selected' : '');
+    btn.textContent = e;
+    btn.onclick = () => {
+      selectedEmoji = e;
+      document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    emojiRow.appendChild(btn);
+  });
+  const colorRow = document.getElementById('colorRow');
+  colorRow.innerHTML = '';
+  COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c === selectedColor ? ' selected' : '');
+    dot.style.background = c;
+    dot.onclick = () => {
+      selectedColor = c;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+    };
+    colorRow.appendChild(dot);
+  });
+}
+
+function openModal() {
+  selectedEmoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+  selectedColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  document.getElementById('habitNameInput').value = '';
+  buildModalOptions();
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('habitNameInput').focus(), 350);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function saveHabit() {
+  const name = document.getElementById('habitNameInput').value.trim();
+  if (!name) { showToast('Please enter a habit name'); return; }
+  habits.push({ id: Date.now().toString(), name, emoji: selectedEmoji, color: selectedColor });
+  save();
+  closeModal();
+  render();
+  showToast('Habit added!');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+document.getElementById('habitNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveHabit();
+});
+
+if (!habits.length) {
+  const defaults = [
+    { name: 'Morning Run', emoji: '🏃', color: '#007aff' },
+    { name: 'Drink Water', emoji: '💧', color: '#5ac8fa' },
+    { name: 'Read 20 min', emoji: '📚', color: '#ff9500' },
+    { name: 'Meditate', emoji: '🧘', color: '#af52de' },
+  ];
+  defaults.forEach(d => habits.push({ id: Date.now().toString() + Math.random(), ...d }));
+  save();
+}
+
+setDateLabel();
+render();
 </script>
-
 </body>
 </html>
-
