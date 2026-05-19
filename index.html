@@ -40,8 +40,9 @@
       background: var(--bg);
       color: var(--label);
       min-height: 100dvh;
-      padding-bottom: 84px;
-      overscroll-behavior: none;
+      padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px) + 20px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* ── Header ── */
@@ -56,19 +57,22 @@
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding-bottom: 10px;
+      padding-bottom: 12px;
+      border-bottom: 0.5px solid var(--separator);
+      margin-bottom: 2px;
     }
     .header-left h1 {
       font-size: 34px;
       font-weight: 700;
       letter-spacing: -0.5px;
-      line-height: 1;
+      line-height: 1.1;
     }
     .header-left .date-label {
       font-size: 13px;
       color: var(--sublabel);
-      margin-top: 2px;
+      margin-top: 4px;
       font-weight: 500;
+      line-height: 1.4;
     }
     .add-btn {
       width: 32px; height: 32px;
@@ -123,12 +127,13 @@
     /* ── Section ── */
     .section { padding: 20px 20px 0; }
     .section-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--sublabel);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+      padding-left: 4px;
     }
 
     /* ── Habit cards ── */
@@ -165,18 +170,23 @@
       flex-shrink: 0;
     }
 
-    .habit-info { flex: 1; min-width: 0; }
+    .habit-info { flex: 1; min-width: 0; padding-right: 4px; }
     .habit-name {
       font-size: 17px;
       font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 1.35;
     }
     .habit-meta {
       font-size: 13px;
       color: var(--sublabel);
-      margin-top: 2px;
+      margin-top: 3px;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .habit-meta .streak { color: var(--orange); font-weight: 600; }
 
@@ -361,6 +371,58 @@
     .empty-state .emoji { font-size: 56px; }
     .empty-state p { font-size: 17px; color: var(--sublabel); text-align: center; }
 
+    /* ── Info section ── */
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--separator);
+    }
+    .info-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--card);
+    }
+    .info-card:first-child { border-radius: 12px 12px 0 0; }
+    .info-card:last-child  { border-radius: 0 0 12px 12px; }
+    .info-icon {
+      font-size: 22px;
+      width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .info-text { flex: 1; min-width: 0; }
+    .info-heading {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .info-sub {
+      font-size: 13px;
+      color: var(--sublabel);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* ── Tips card ── */
+    .tips-card {
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .tip-row {
+      font-size: 14px;
+      color: var(--label);
+      padding: 12px 16px;
+      line-height: 1.45;
+      border-bottom: 0.5px solid var(--separator);
+    }
+    .tip-row:last-child { border-bottom: none; }
+
     /* ── Swipe-to-delete hint ── */
     .delete-bg {
       position: absolute; right: 0; top: 0; bottom: 0;
@@ -434,6 +496,51 @@
   <div class="tab-item" onclick="showToast('Coming soon')">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
     <span>Profile</span>
+  </div>
+</div>
+
+<!-- Info section -->
+<div class="section" style="padding-top:28px;">
+  <div class="section-title">How it works</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-icon">✅</div>
+      <div class="info-text">
+        <div class="info-heading">Tap to complete</div>
+        <div class="info-sub">Check off each habit daily to build consistency</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">🔥</div>
+      <div class="info-text">
+        <div class="info-heading">Build streaks</div>
+        <div class="info-sub">Complete habits every day to grow your streak</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">➕</div>
+      <div class="info-text">
+        <div class="info-heading">Add habits</div>
+        <div class="info-sub">Tap the blue + button to create a new habit</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon">📊</div>
+      <div class="info-text">
+        <div class="info-heading">Track progress</div>
+        <div class="info-sub">Weekly rings and stats update in real time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="padding-top:20px; padding-bottom:8px;">
+  <div class="section-title">Tips</div>
+  <div class="tips-card">
+    <div class="tip-row">💡 Start small — 2–3 habits is better than 10</div>
+    <div class="tip-row">⏰ Link habits to existing routines (morning, lunch, bed)</div>
+    <div class="tip-row">🎯 Consistency beats intensity every time</div>
+    <div class="tip-row">📅 Your data is saved locally on this device</div>
   </div>
 </div>
 
@@ -642,11 +749,13 @@ function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── Date label ──
 function setDateLabel() {
   const d = new Date();
   document.getElementById('dateLabel').textContent = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
 }
 
+// ── Modal ──
 function buildModalOptions() {
   const emojiRow = document.getElementById('emojiRow');
   emojiRow.innerHTML = '';
@@ -703,6 +812,7 @@ function saveHabit() {
   showToast('Habit added!');
 }
 
+// ── Toast ──
 let toastTimer;
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -712,10 +822,12 @@ function showToast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+// ── Enter key to save ──
 document.getElementById('habitNameInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') saveHabit();
 });
 
+// ── Seed default habits for first visit ──
 if (!habits.length) {
   const defaults = [
     { name: 'Morning Run', emoji: '🏃', color: '#007aff' },
