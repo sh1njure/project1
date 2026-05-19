@@ -745,6 +745,139 @@
       color: var(--sublabel);
       margin-top: 1px;
     }
+
+    /* ── Profile view ── */
+    .profile-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 20px 20px;
+      gap: 10px;
+    }
+    .profile-avatar-wrap { position: relative; cursor: pointer; }
+    .profile-avatar {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px; font-weight: 700;
+      color: white;
+      letter-spacing: -1px;
+      transition: transform 0.15s;
+    }
+    .profile-avatar:active { transform: scale(0.94); }
+    .profile-avatar-edit {
+      position: absolute; bottom: 0; right: 0;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .profile-avatar-edit svg { width: 13px; height: 13px; fill: white; }
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .profile-joined {
+      font-size: 13px;
+      color: var(--sublabel);
+    }
+
+    /* mini stats row */
+    .profile-mini-stats {
+      display: flex;
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 0 20px;
+    }
+    .profile-mini-stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 8px;
+      gap: 2px;
+    }
+    .profile-mini-stat + .profile-mini-stat { border-left: 0.5px solid var(--separator); }
+    .profile-mini-num { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .profile-mini-lbl { font-size: 11px; color: var(--sublabel); font-weight: 500; }
+
+    /* achievements */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .badge-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+    .badge-card.locked { opacity: 0.35; filter: grayscale(1); }
+    .badge-icon { font-size: 30px; line-height: 1; }
+    .badge-name { font-size: 12px; font-weight: 600; line-height: 1.2; }
+    .badge-desc { font-size: 10px; color: var(--sublabel); line-height: 1.3; }
+
+    /* settings rows */
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--separator);
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--card);
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .settings-row:active { background: var(--bg); }
+    .settings-row:first-child { border-radius: 12px 12px 0 0; }
+    .settings-row:last-child  { border-radius: 0 0 12px 12px; }
+    .settings-row:only-child  { border-radius: 12px; }
+    .settings-row-left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .settings-icon {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .settings-label { font-size: 16px; font-weight: 400; }
+    .settings-value { font-size: 15px; color: var(--sublabel); }
+    .settings-chevron { color: var(--sublabel); font-size: 18px; }
+
+    /* danger button */
+    .danger-btn {
+      width: 100%;
+      background: var(--card);
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--red);
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .danger-btn:active { opacity: 0.6; }
   </style>
 </head>
 <body>
@@ -887,6 +1020,82 @@
   </div>
 </div><!-- /viewStats -->
 
+<!-- ══ PROFILE VIEW ══ -->
+<div class="view" id="viewProfile">
+  <!-- Hero -->
+  <div class="profile-hero">
+    <div class="profile-avatar-wrap" onclick="openProfileModal()">
+      <div class="profile-avatar" id="profileAvatar"></div>
+      <div class="profile-avatar-edit">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      </div>
+    </div>
+    <div class="profile-name" id="profileName">You</div>
+    <div class="profile-joined" id="profileJoined"></div>
+  </div>
+
+  <!-- Mini stats -->
+  <div class="profile-mini-stats">
+    <div class="profile-mini-stat">
+      <div class="profile-mini-num" id="pmHabits" style="color:var(--accent)">0</div>
+      <div class="profile-mini-lbl">Habits</div>
+    </div>
+    <div class="profile-mini-stat">
+      <div class="profile-mini-num" id="pmStreak" style="color:var(--orange)">0</div>
+      <div class="profile-mini-lbl">Best streak</div>
+    </div>
+    <div class="profile-mini-stat">
+      <div class="profile-mini-num" id="pmTotal" style="color:var(--green)">0</div>
+      <div class="profile-mini-lbl">Completed</div>
+    </div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="section" style="padding-top:24px;">
+    <div class="section-title">Achievements</div>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="section" style="padding-top:24px;">
+    <div class="section-title">Settings</div>
+    <div class="settings-list">
+      <div class="settings-row" onclick="openProfileModal()">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#007aff22">👤</div>
+          <div class="settings-label">Edit name</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="settings-value" id="settingsNameVal"></div>
+          <div class="settings-chevron">›</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="openColorModal()">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#af52de22">🎨</div>
+          <div class="settings-label">Avatar color</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="settingsColorDot" style="width:18px;height:18px;border-radius:50%"></div>
+          <div class="settings-chevron">›</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="exportData()">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:#34c75922">📤</div>
+          <div class="settings-label">Export data</div>
+        </div>
+        <div class="settings-chevron">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="section" style="padding-top:16px; padding-bottom:8px;">
+    <button class="danger-btn" onclick="confirmReset()">🗑 Reset all data</button>
+  </div>
+</div><!-- /viewProfile -->
+
 <!-- Tab bar -->
 <div class="tab-bar">
   <div class="tab-item active" id="tabToday" onclick="switchTab('today')">
@@ -901,7 +1110,7 @@
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5V9.2zM10.6 5h2.8v14h-2.8V5zm5.6 8H19v6h-2.8v-6z"/></svg>
     <span>Stats</span>
   </div>
-  <div class="tab-item" onclick="showToast('Coming soon')">
+  <div class="tab-item" id="tabProfile" onclick="switchTab('profile')">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
     <span>Profile</span>
   </div>
@@ -950,6 +1159,42 @@
       <div class="form-group">
         <div class="form-label">Color</div>
         <div class="color-row" id="colorRow"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="profileModalOverlay" onclick="if(event.target===this)closeProfileModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-cancel" onclick="closeProfileModal()">Cancel</button>
+      <div class="modal-title">Edit Profile</div>
+      <button class="modal-save" onclick="saveProfile()">Save</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">Your name</div>
+        <input class="form-input" id="profileNameInput" type="text" placeholder="e.g. Alex" maxlength="24" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Avatar Color Modal -->
+<div class="modal-overlay" id="colorModalOverlay" onclick="if(event.target===this)closeColorModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-cancel" onclick="closeColorModal()">Cancel</button>
+      <div class="modal-title">Avatar Color</div>
+      <button class="modal-save" onclick="saveAvatarColor()">Save</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">Pick a color</div>
+        <div class="color-row" id="avatarColorRow"></div>
       </div>
     </div>
   </div>
@@ -1251,6 +1496,10 @@ function switchTab(tab) {
     document.getElementById('headerTitle').textContent = 'Statistics';
     document.getElementById('headerBtn').style.display = 'none';
     renderStats_tab();
+  } else if (tab === 'profile') {
+    document.getElementById('headerTitle').textContent = 'Profile';
+    document.getElementById('headerBtn').style.display = 'none';
+    renderProfile();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1374,6 +1623,131 @@ function saveFriend() {
 document.getElementById('friendNameInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') saveFriend();
 });
+
+// ══ PROFILE TAB ══
+
+let profile = JSON.parse(localStorage.getItem('profile_v1') || 'null') || {
+  name: 'You',
+  color: '#007aff',
+  joinedAt: Date.now()
+};
+function saveProfileData() { localStorage.setItem('profile_v1', JSON.stringify(profile)); }
+
+const BADGES = [
+  { icon: '🌱', name: 'First Step',    desc: 'Complete 1 habit',        check: () => getTotalCompletions() >= 1 },
+  { icon: '🔥', name: 'On Fire',       desc: '3-day streak',            check: () => getBestStreak() >= 3 },
+  { icon: '⚡', name: 'Week Warrior',  desc: '7-day streak',            check: () => getBestStreak() >= 7 },
+  { icon: '💎', name: 'Diamond',       desc: '30-day streak',           check: () => getBestStreak() >= 30 },
+  { icon: '🏆', name: 'Centurion',     desc: '100 total completions',   check: () => getTotalCompletions() >= 100 },
+  { icon: '🎯', name: 'Perfectionist', desc: 'Full day — all habits',   check: () => getBestDayCount() >= habits.length && habits.length > 0 },
+  { icon: '📚', name: 'Collector',     desc: 'Add 5 habits',            check: () => habits.length >= 5 },
+  { icon: '🌟', name: 'Superstar',     desc: '50 total completions',    check: () => getTotalCompletions() >= 50 },
+  { icon: '🦁', name: 'Consistent',   desc: '14-day streak',           check: () => getBestStreak() >= 14 },
+];
+
+function renderProfile() {
+  const av = document.getElementById('profileAvatar');
+  av.style.background = profile.color;
+  av.textContent = initials(profile.name);
+
+  document.getElementById('profileName').textContent = profile.name;
+  document.getElementById('settingsNameVal').textContent = profile.name;
+  document.getElementById('settingsColorDot').style.background = profile.color;
+
+  const joined = new Date(profile.joinedAt);
+  document.getElementById('profileJoined').textContent =
+    'Member since ' + joined.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  document.getElementById('pmHabits').textContent = habits.length;
+  document.getElementById('pmStreak').textContent = getBestStreak();
+  document.getElementById('pmTotal').textContent = getTotalCompletions();
+
+  renderAchievements();
+}
+
+function renderAchievements() {
+  const grid = document.getElementById('achievementsGrid');
+  grid.innerHTML = '';
+  BADGES.forEach(b => {
+    const unlocked = b.check();
+    grid.innerHTML += `
+      <div class="badge-card ${unlocked ? '' : 'locked'}">
+        <div class="badge-icon">${b.icon}</div>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-desc">${b.desc}</div>
+      </div>`;
+  });
+}
+
+function openProfileModal() {
+  document.getElementById('profileNameInput').value = profile.name;
+  document.getElementById('profileModalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('profileNameInput').focus(), 350);
+}
+function closeProfileModal() {
+  document.getElementById('profileModalOverlay').classList.remove('open');
+}
+function saveProfile() {
+  const name = document.getElementById('profileNameInput').value.trim();
+  if (!name) { showToast('Enter your name'); return; }
+  profile.name = name;
+  saveProfileData();
+  closeProfileModal();
+  renderProfile();
+  showToast('Profile updated!');
+}
+document.getElementById('profileNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveProfile();
+});
+
+let selectedAvatarColor = profile.color;
+function openColorModal() {
+  selectedAvatarColor = profile.color;
+  const row = document.getElementById('avatarColorRow');
+  row.innerHTML = '';
+  COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c === selectedAvatarColor ? ' selected' : '');
+    dot.style.background = c;
+    dot.onclick = () => {
+      selectedAvatarColor = c;
+      row.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+    };
+    row.appendChild(dot);
+  });
+  document.getElementById('colorModalOverlay').classList.add('open');
+}
+function closeColorModal() {
+  document.getElementById('colorModalOverlay').classList.remove('open');
+}
+function saveAvatarColor() {
+  profile.color = selectedAvatarColor;
+  saveProfileData();
+  closeColorModal();
+  renderProfile();
+  showToast('Color updated!');
+}
+
+function exportData() {
+  const data = { habits, completions, profile, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'habits-backup.json';
+  a.click();
+  showToast('Data exported!');
+}
+
+function confirmReset() {
+  if (confirm('Reset all habits and data? This cannot be undone.')) {
+    localStorage.removeItem('habits_v2');
+    localStorage.removeItem('completions_v2');
+    habits = []; completions = {};
+    renderProfile();
+    showToast('Data reset');
+  }
+}
 
 // ══ STATS TAB ══
 
