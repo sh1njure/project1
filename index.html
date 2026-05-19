@@ -434,6 +434,151 @@
       transition: opacity 0.15s;
     }
     .delete-bg span { color: white; font-size: 15px; font-weight: 600; }
+
+    /* ── Views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Friends ── */
+    .leaderboard {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--separator);
+    }
+    .friend-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 16px;
+      background: var(--card);
+      position: relative;
+    }
+    .friend-row:first-child { border-radius: 12px 12px 0 0; }
+    .friend-row:last-child  { border-radius: 0 0 12px 12px; }
+    .friend-row:only-child  { border-radius: 12px; }
+    .friend-rank {
+      font-size: 16px;
+      font-weight: 700;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+      color: var(--sublabel);
+    }
+    .friend-rank.gold   { color: #f5a623; }
+    .friend-rank.silver { color: #9b9b9b; }
+    .friend-rank.bronze { color: #c67c3b; }
+    .friend-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .friend-name .you-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(0,122,255,0.12);
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .friend-meta {
+      font-size: 13px;
+      color: var(--sublabel);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+    .friend-streak {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .friend-streak-num {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .friend-streak-label {
+      font-size: 11px;
+      color: var(--sublabel);
+      margin-top: 2px;
+    }
+
+    /* week bar */
+    .week-bar-wrap {
+      margin-top: 4px;
+      height: 4px;
+      background: var(--separator);
+      border-radius: 2px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .week-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* add-friend banner */
+    .add-friend-btn {
+      width: 100%;
+      background: var(--card);
+      border: none;
+      border-radius: 12px;
+      padding: 15px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .add-friend-btn:active { opacity: 0.6; }
+    .add-friend-btn .plus-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(0,122,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    /* delete friend swipe */
+    .friend-row .del-btn {
+      display: none;
+      position: absolute;
+      right: 14px; top: 50%; transform: translateY(-50%);
+      background: var(--red);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .friend-row:hover .del-btn,
+    .friend-row.show-del .del-btn { display: block; }
+    .friend-row.show-del .friend-streak { opacity: 0; }
   </style>
 </head>
 <body>
@@ -442,14 +587,17 @@
 <div class="header">
   <div class="header-inner">
     <div class="header-left">
-      <h1>Habits</h1>
+      <h1 id="headerTitle">Habits</h1>
       <div class="date-label" id="dateLabel"></div>
     </div>
-    <button class="add-btn" onclick="openModal()" aria-label="Add habit">
+    <button class="add-btn" id="headerBtn" onclick="openModal()" aria-label="Add habit">
       <svg viewBox="0 0 24 24"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
     </button>
   </div>
 </div>
+
+<!-- ══ TODAY VIEW ══ -->
+<div class="view active" id="viewToday">
 
 <!-- Weekly progress strip -->
 <div class="progress-strip" id="progressStrip"></div>
@@ -477,26 +625,6 @@
 <div class="section" id="habitSection">
   <div class="section-title">Today</div>
   <div class="habit-list" id="habitList"></div>
-</div>
-
-<!-- Tab bar -->
-<div class="tab-bar">
-  <div class="tab-item active">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span>Today</span>
-  </div>
-  <div class="tab-item" onclick="showToast('Coming soon')">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-    <span>Friends</span>
-  </div>
-  <div class="tab-item" onclick="showToast('Coming soon')">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
-    <span>Stats</span>
-  </div>
-  <div class="tab-item" onclick="showToast('Coming soon')">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-    <span>Profile</span>
-  </div>
 </div>
 
 <!-- Info section -->
@@ -541,6 +669,73 @@
     <div class="tip-row">⏰ Link habits to existing routines (morning, lunch, bed)</div>
     <div class="tip-row">🎯 Consistency beats intensity every time</div>
     <div class="tip-row">📅 Your data is saved locally on this device</div>
+  </div>
+</div>
+
+</div><!-- /viewToday -->
+
+<!-- ══ FRIENDS VIEW ══ -->
+<div class="view" id="viewFriends">
+  <div class="section" style="padding-top:20px;">
+    <div class="section-title">Leaderboard</div>
+    <div class="leaderboard" id="leaderboard"></div>
+  </div>
+  <div class="section" style="padding-top:12px;">
+    <button class="add-friend-btn" onclick="openFriendModal()">
+      <div class="plus-circle">+</div>
+      Add a friend
+    </button>
+  </div>
+  <div class="section" style="padding-top:20px; padding-bottom:8px;">
+    <div class="section-title">About Friends</div>
+    <div class="tips-card">
+      <div class="tip-row">🏆 Rankings are sorted by current streak</div>
+      <div class="tip-row">📊 Weekly bar shows 7-day completion rate</div>
+      <div class="tip-row">👆 Long-press a friend to remove them</div>
+      <div class="tip-row">🔄 Stats update as you complete habits</div>
+    </div>
+  </div>
+</div><!-- /viewFriends -->
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <div class="tab-item active" id="tabToday" onclick="switchTab('today')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>Today</span>
+  </div>
+  <div class="tab-item" id="tabFriends" onclick="switchTab('friends')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+    <span>Friends</span>
+  </div>
+  <div class="tab-item" onclick="showToast('Coming soon')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+    <span>Stats</span>
+  </div>
+  <div class="tab-item" onclick="showToast('Coming soon')">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+    <span>Profile</span>
+  </div>
+</div>
+
+<!-- Add Friend Modal -->
+<div class="modal-overlay" id="friendModalOverlay" onclick="handleFriendOverlayClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-cancel" onclick="closeFriendModal()">Cancel</button>
+      <div class="modal-title">Add Friend</div>
+      <button class="modal-save" onclick="saveFriend()">Add</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">Name</div>
+        <input class="form-input" id="friendNameInput" type="text" placeholder="e.g. Alex" maxlength="24" />
+      </div>
+      <div class="form-group">
+        <div class="form-label">Avatar color</div>
+        <div class="color-row" id="friendColorRow"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -841,6 +1036,150 @@ if (!habits.length) {
 
 setDateLabel();
 render();
+
+// ══ TAB SWITCHING ══
+let currentTab = 'today';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('view' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  if (tab === 'today') {
+    document.getElementById('headerTitle').textContent = 'Habits';
+    document.getElementById('headerBtn').style.display = '';
+    document.getElementById('headerBtn').onclick = openModal;
+    render();
+  } else if (tab === 'friends') {
+    document.getElementById('headerTitle').textContent = 'Friends';
+    document.getElementById('headerBtn').style.display = '';
+    document.getElementById('headerBtn').onclick = openFriendModal;
+    renderLeaderboard();
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══ FRIENDS DATA ══
+let friends = JSON.parse(localStorage.getItem('friends_v1') || 'null');
+if (!friends) {
+  friends = [
+    { id: 'f1', name: 'Alex',   color: '#ff9500', streak: 14, weekRate: 92 },
+    { id: 'f2', name: 'Maria',  color: '#ff2d55', streak: 7,  weekRate: 75 },
+    { id: 'f3', name: 'Denis',  color: '#5856d6', streak: 3,  weekRate: 58 },
+  ];
+  localStorage.setItem('friends_v1', JSON.stringify(friends));
+}
+
+function saveFriends() {
+  localStorage.setItem('friends_v1', JSON.stringify(friends));
+}
+
+function myStreak() { return getBestStreak(); }
+function myWeekRate() { return getWeekCompletionRate(); }
+
+function initials(name) {
+  return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function rankLabel(i) {
+  if (i === 0) return { text: '🥇', cls: 'gold' };
+  if (i === 1) return { text: '🥈', cls: 'silver' };
+  if (i === 2) return { text: '🥉', cls: 'bronze' };
+  return { text: `${i + 1}`, cls: '' };
+}
+
+function renderLeaderboard() {
+  const me = { id: 'me', name: 'You', color: '#007aff', streak: myStreak(), weekRate: myWeekRate(), isMe: true };
+  const all = [me, ...friends].sort((a, b) => b.streak - a.streak || b.weekRate - a.weekRate);
+  const lb = document.getElementById('leaderboard');
+  lb.innerHTML = '';
+  all.forEach((person, i) => {
+    const rank = rankLabel(i);
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    row.innerHTML = `
+      <div class="friend-rank ${rank.cls}">${rank.text}</div>
+      <div class="friend-avatar" style="background:${person.color}">${initials(person.name)}</div>
+      <div class="friend-info">
+        <div class="friend-name">${escHtml(person.name)}${person.isMe ? '<span class="you-badge">You</span>' : ''}</div>
+        <div class="friend-meta">
+          <div class="week-bar-wrap">
+            <div class="week-bar-fill" style="width:${person.weekRate}%;background:${person.color}"></div>
+          </div>
+        </div>
+        <div class="friend-meta" style="margin-top:3px">${person.weekRate}% this week</div>
+      </div>
+      <div class="friend-streak">
+        <div class="friend-streak-num" style="color:${person.streak > 0 ? '#ff9500' : 'var(--sublabel)'}">${person.streak > 0 ? '🔥' : '—'}</div>
+        <div class="friend-streak-label">${person.streak > 0 ? person.streak + ' days' : 'no streak'}</div>
+      </div>
+      ${!person.isMe ? `<button class="del-btn" onclick="removeFriend('${person.id}')">Remove</button>` : ''}`;
+
+    if (!person.isMe) {
+      let pressTimer;
+      row.addEventListener('touchstart', () => { pressTimer = setTimeout(() => row.classList.toggle('show-del'), 600); });
+      row.addEventListener('touchend', () => clearTimeout(pressTimer));
+      row.addEventListener('touchmove', () => clearTimeout(pressTimer));
+    }
+    lb.appendChild(row);
+  });
+}
+
+function removeFriend(id) {
+  friends = friends.filter(f => f.id !== id);
+  saveFriends();
+  renderLeaderboard();
+  showToast('Friend removed');
+}
+
+// ── Friend modal ──
+let selectedFriendColor = COLORS[3];
+
+function openFriendModal() {
+  selectedFriendColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  document.getElementById('friendNameInput').value = '';
+  const cr = document.getElementById('friendColorRow');
+  cr.innerHTML = '';
+  COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c === selectedFriendColor ? ' selected' : '');
+    dot.style.background = c;
+    dot.onclick = () => {
+      selectedFriendColor = c;
+      document.querySelectorAll('#friendColorRow .color-dot').forEach(d => d.classList.remove('selected'));
+      dot.classList.add('selected');
+    };
+    cr.appendChild(dot);
+  });
+  document.getElementById('friendModalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('friendNameInput').focus(), 350);
+}
+
+function closeFriendModal() {
+  document.getElementById('friendModalOverlay').classList.remove('open');
+}
+
+function handleFriendOverlayClick(e) {
+  if (e.target === document.getElementById('friendModalOverlay')) closeFriendModal();
+}
+
+function saveFriend() {
+  const name = document.getElementById('friendNameInput').value.trim();
+  if (!name) { showToast('Enter a name'); return; }
+  const streak = Math.floor(Math.random() * 12);
+  const weekRate = Math.floor(Math.random() * 60) + 30;
+  friends.push({ id: Date.now().toString(), name, color: selectedFriendColor, streak, weekRate });
+  saveFriends();
+  closeFriendModal();
+  renderLeaderboard();
+  showToast(`${name} added!`);
+}
+
+document.getElementById('friendNameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveFriend();
+});
 </script>
 </body>
 </html>
